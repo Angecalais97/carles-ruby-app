@@ -1,0 +1,38 @@
+version: '3.8'
+
+networks:
+  app_network:  # Réseau unique pour Frontend et DB
+    driver: bridge
+
+services:
+  frontend:
+    image: s5carles/ruby-app:00  # Ton image frontend
+    networks:
+      - app_network
+    depends_on:
+      - db
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=app_user
+      - DATABASE_PASSWORD=securepassword
+      - DATABASE_NAME=my_app_development
+    ports:
+      - "8080:8080"  # Expose le frontend sur le port 8080
+
+  db:
+    image: mariadb:10.5
+    environment:
+      - MARIADB_ROOT_PASSWORD=securepassword
+      - MYSQL_DATABASE=my_app_development
+      - MYSQL_USER=app_user
+      - MYSQL_PASSWORD=securepassword
+    volumes:
+      - db-data:/var/lib/mysql  # Monte les fichiers DB pour la persistance
+    networks:
+      - app_network
+    ports:
+      - "3306:3306"  # Expose la DB pour les connexions
+
+volumes:
+  db-data:
+
